@@ -32,16 +32,17 @@ export default function LoginScreen({ onLogin }: Props) {
       return
     }
 
-    if (existing) {
-      onLogin(trimmed)
-      return
-    }
-
-    const { data: auth } = await supabase.auth.getSession()
-    const userId = auth?.session?.user?.id
+    const { data: sessionData } = await supabase.auth.getSession()
+    const userId = sessionData?.session?.user?.id
     if (!userId) {
       setError('Failed to get session')
       setLoading(false)
+      return
+    }
+
+    if (existing) {
+      await supabase.from('profiles').update({ id: userId }).eq('username', trimmed)
+      onLogin(trimmed)
       return
     }
 

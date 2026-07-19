@@ -10,7 +10,7 @@ import type { Level, TestCase } from '@/types'
 
 interface Props {
   level: Level
-  profileId: string
+  username: string
   classId: number
   allLevels: Level[]
   onComplete: (nextLevelNumber: number) => void
@@ -40,7 +40,7 @@ function HighlightedText({ text, ranges, highlightClass }: { text: string; range
   )
 }
 
-export default function LevelChallenge({ level, profileId, classId, allLevels, onComplete, onBack }: Props) {
+export default function LevelChallenge({ level, username, classId, allLevels, onComplete, onBack }: Props) {
   const [pattern, setPattern] = useState('')
   const [submitted, setSubmitted] = useState<MatchDetail[] | null>(null)
   const [solved, setSolved] = useState(false)
@@ -64,13 +64,13 @@ export default function LevelChallenge({ level, profileId, classId, allLevels, o
       const { error } = await supabase
         .from('class_students')
         .update({ current_level: level.level_number + 1 })
-        .eq('profile_id', profileId)
+        .eq('student_username', username)
         .eq('class_id', classId)
       if (!error) {
         toast.success(`Level ${level.level_number} solved!`)
       }
     }
-  }, [pattern, level, profileId, classId])
+  }, [pattern, level, username, classId])
 
   const nextLevel = allLevels.find((l) => l.level_number === level.level_number + 1)
   const hasNext = level.level_number < 50

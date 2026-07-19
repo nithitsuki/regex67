@@ -14,7 +14,7 @@ export interface Class {
 export interface ClassStudent {
   id: number
   class_id: number
-  profile_id: string
+  student_username: string
   current_level: number
 }
 

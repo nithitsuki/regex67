@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Separator } from '@/components/ui/separator'
 import { toast } from 'sonner'
 import { sampleLevels } from '@/levels'
-import type { Class, Level, ClassStudent, Profile } from '@/types'
+import type { Class, Level, ClassStudent } from '@/types'
 
 function LevelEditor({ classId, onDone }: { classId: number; onDone: () => void }) {
   const [levels, setLevels] = useState<Level[]>([])
@@ -199,21 +199,15 @@ function CreateClass({ onCreated }: { onCreated: () => void }) {
 }
 
 function ProgressView({ classId }: { classId: number }) {
-  const [students, setStudents] = useState<(ClassStudent & { profile?: Profile })[]>([])
+  const [students, setStudents] = useState<ClassStudent[]>([])
 
   useEffect(() => {
     supabase
       .from('class_students')
       .select('*')
       .eq('class_id', classId)
-      .then(async ({ data: enrollments }) => {
-        if (!enrollments) return
-        const { data: profiles } = await supabase.from('profiles').select('*')
-        const withProfiles = enrollments.map((e) => ({
-          ...e,
-          profile: profiles?.find((p: Profile) => p.id === e.profile_id),
-        }))
-        setStudents(withProfiles)
+      .then(({ data }) => {
+        if (data) setStudents(data)
       })
   }, [classId])
 
@@ -224,21 +218,31 @@ function ProgressView({ classId }: { classId: number }) {
   const levelCounts: Record<number, number> = {}
   for (let i = 1; i <= 50; i++) levelCounts[i] = 0
   for (const s of students) levelCounts[s.current_level] = (levelCounts[s.current_level] || 0) + 1
+  const maxCount = Math.max(...Object.values(levelCounts), 1)
 
   return (
     <div className="flex flex-col gap-4">
       <div>
         <h3 className="mb-2 text-sm font-medium">Students per level</h3>
-        <div className="flex flex-wrap gap-1">
-          {Array.from({ length: 50 }, (_, i) => i + 1).map((lv) => (
-            <div
-              key={lv}
-              className="flex h-12 w-12 flex-col items-center justify-center rounded-lg border text-xs"
-            >
-              <span className="font-mono font-bold">{lv}</span>
-              <span className="text-muted-foreground">{levelCounts[lv] || 0}</span>
-            </div>
-          ))}
+        <div className="flex items-end gap-[3px] h-40">
+          {Array.from({ length: 50 }, (_, i) => i + 1).map((lv) => {
+            const count = levelCounts[lv] || 0
+            const height = (count / maxCount) * 100
+            return (
+              <div key={lv} className="group relative flex flex-1 flex-col items-center justify-end h-full">
+                <div
+                  className="w-full rounded-t bg-primary transition-all group-hover:bg-primary/80"
+                  style={{ height: `${Math.max(height, count > 0 ? 4 : 0)}%` }}
+                />
+                <span className="mt-1 text-[10px] text-muted-foreground">{lv}</span>
+                {count > 0 && (
+                  <span className="absolute -top-5 text-[10px] font-medium text-foreground">
+                    {count}
+                  </span>
+                )}
+              </div>
+            )
+          })}
         </div>
       </div>
       <Separator />
@@ -252,7 +256,7 @@ function ProgressView({ classId }: { classId: number }) {
         <TableBody>
           {students.map((s) => (
             <TableRow key={s.id}>
-              <TableCell>{s.profile?.username || 'Unknown'}</TableCell>
+              <TableCell>{s.student_username}</TableCell>
               <TableCell>
                 <Badge>Level {s.current_level}</Badge>
               </TableCell>

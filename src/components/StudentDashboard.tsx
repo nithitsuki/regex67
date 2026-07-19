@@ -9,7 +9,7 @@ import Cheatsheet from '@/components/Cheatsheet'
 import type { Class, ClassStudent } from '@/types'
 
 export default function StudentDashboard() {
-  const { username, profileId, logout } = useStore()
+  const { username, logout } = useStore()
   const [classes, setClasses] = useState<Class[]>([])
   const [enrollments, setEnrollments] = useState<ClassStudent[]>([])
   const [selectedClass, setSelectedClass] = useState<{ id: number; name: string; currentLevel: number } | null>(null)
@@ -19,15 +19,15 @@ export default function StudentDashboard() {
     supabase.from('classes').select('*').eq('enabled', true).then(({ data }) => {
       if (data) setClasses(data)
     })
-    supabase.from('class_students').select('*').eq('profile_id', profileId).then(({ data }) => {
+    supabase.from('class_students').select('*').eq('student_username', username).then(({ data }) => {
       if (data) setEnrollments(data)
     })
-  }, [profileId])
+  }, [username])
 
   const handleJoin = async (c: Class) => {
     const { data } = await supabase
       .from('class_students')
-      .insert({ class_id: c.id, profile_id: profileId, current_level: 1 })
+      .insert({ class_id: c.id, student_username: username, current_level: 1 })
       .select()
       .single()
 
@@ -43,7 +43,7 @@ export default function StudentDashboard() {
         classId={selectedClass.id}
         className={selectedClass.name}
         currentLevel={selectedClass.currentLevel}
-        profileId={profileId}
+        username={username}
         onBack={() => setSelectedClass(null)}
       />
     )

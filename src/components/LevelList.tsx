@@ -11,11 +11,11 @@ interface Props {
   classId: number
   className: string
   currentLevel: number
-  profileId: string
+  username: string
   onBack: () => void
 }
 
-export default function LevelList({ classId, className, currentLevel, profileId, onBack }: Props) {
+export default function LevelList({ classId, className, currentLevel, username, onBack }: Props) {
   const [levels, setLevels] = useState<Level[]>([])
   const [activeLevel, setActiveLevel] = useState<Level | null>(null)
   const [activeLvl, setActiveLvl] = useState(currentLevel)
@@ -46,7 +46,7 @@ export default function LevelList({ classId, className, currentLevel, profileId,
     return (
       <LevelChallenge
         level={activeLevel}
-        profileId={profileId}
+        username={username}
         classId={classId}
         allLevels={levels}
         onComplete={handleComplete}
