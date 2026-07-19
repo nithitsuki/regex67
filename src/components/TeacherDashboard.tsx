@@ -8,6 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Separator } from '@/components/ui/separator'
+import { toast } from 'sonner'
 import { sampleLevels } from '@/levels'
 import type { Class, Level, ClassStudent, Profile } from '@/types'
 
@@ -24,12 +25,22 @@ function LevelEditor({ classId, onDone }: { classId: number; onDone: () => void 
 
   const seedLevels = async () => {
     const existing = levels.filter((l) => l.level_number <= 5)
-    if (existing.length === 5) return
+    if (existing.length === 5) {
+      toast.info('Levels 1-5 already exist')
+      return
+    }
+    let count = 0
     for (const lv of sampleLevels) {
       if (!levels.find((l) => l.level_number === lv.level_number)) {
-        await supabase.from('levels').insert({ class_id: classId, ...lv })
+        const { error } = await supabase.from('levels').insert({ class_id: classId, ...lv })
+        if (error) {
+          toast.error(`Failed to insert level ${lv.level_number}: ${error.message}`)
+          return
+        }
+        count++
       }
     }
+    toast.success(`${count} sample levels created`)
     onDone()
     const { data } = await supabase
       .from('levels')

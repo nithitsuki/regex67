@@ -25,21 +25,29 @@ export default function LoginScreen({ onLogin }: Props) {
       .eq('username', trimmed)
       .maybeSingle()
 
+    const { error: authErr } = await supabase.auth.signInAnonymously()
+    if (authErr) {
+      setError(authErr.message)
+      setLoading(false)
+      return
+    }
+
     if (existing) {
       onLogin(trimmed)
       return
     }
 
-    const { data: auth, error: authErr } = await supabase.auth.signInAnonymously()
-    if (authErr || !auth.user) {
-      setError(authErr?.message || 'Login failed')
+    const { data: auth } = await supabase.auth.getSession()
+    const userId = auth?.session?.user?.id
+    if (!userId) {
+      setError('Failed to get session')
       setLoading(false)
       return
     }
 
     const { error: insertErr } = await supabase
       .from('profiles')
-      .insert({ id: auth.user.id, username: trimmed })
+      .insert({ id: userId, username: trimmed })
 
     if (insertErr) {
       setError(insertErr.message)
