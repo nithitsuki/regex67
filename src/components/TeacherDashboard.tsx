@@ -227,7 +227,8 @@ function ProgressView({ classId }: { classId: number }) {
     <div className="flex flex-col gap-6">
       <div>
         <h3 className="mb-2 text-sm font-medium">Level completion ({total} students)</h3>
-        <div className="flex items-end gap-[3px] h-48 pt-6 pb-6">
+        <div className="overflow-x-auto">
+          <div className="flex items-end gap-1 h-48 pt-6 pb-6 min-w-[800px]">
           {Array.from({ length: 50 }, (_, i) => i + 1).map((lv) => {
             const { count, pct } = completion[lv]
             return (
@@ -253,6 +254,7 @@ function ProgressView({ classId }: { classId: number }) {
               </div>
             )
           })}
+          </div>
         </div>
       </div>
       <Separator />
