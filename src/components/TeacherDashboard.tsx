@@ -215,29 +215,37 @@ function ProgressView({ classId }: { classId: number }) {
     return <p className="text-sm text-muted-foreground">No students have joined yet.</p>
   }
 
-  const levelCounts: Record<number, number> = {}
-  for (let i = 1; i <= 50; i++) levelCounts[i] = 0
-  for (const s of students) levelCounts[s.current_level] = (levelCounts[s.current_level] || 0) + 1
-  const maxCount = Math.max(...Object.values(levelCounts), 1)
+  const total = students.length
+
+  const completion: Record<number, { count: number; pct: number }> = {}
+  for (let i = 1; i <= 50; i++) {
+    const completed = students.filter((s) => s.current_level > i).length
+    completion[i] = { count: students.filter((s) => s.current_level === i).length, pct: Math.round((completed / total) * 100) }
+  }
 
   return (
     <div className="flex flex-col gap-4">
       <div>
-        <h3 className="mb-2 text-sm font-medium">Students per level</h3>
+        <h3 className="mb-2 text-sm font-medium">Level completion ({total} students)</h3>
         <div className="flex items-end gap-[3px] h-40">
           {Array.from({ length: 50 }, (_, i) => i + 1).map((lv) => {
-            const count = levelCounts[lv] || 0
-            const height = (count / maxCount) * 100
+            const { count, pct } = completion[lv]
             return (
               <div key={lv} className="group relative flex flex-1 flex-col items-center justify-end h-full">
                 <div
-                  className="w-full rounded-t bg-primary transition-all group-hover:bg-primary/80"
-                  style={{ height: `${Math.max(height, count > 0 ? 4 : 0)}%` }}
+                  className="w-full rounded-t transition-all"
+                  style={{
+                    height: `${pct}%`,
+                    backgroundColor: pct >= 80 ? 'hsl(142, 76%, 36%)' : pct >= 40 ? 'hsl(48, 96%, 53%)' : 'hsl(0, 84%, 60%)',
+                  }}
                 />
                 <span className="mt-1 text-[10px] text-muted-foreground">{lv}</span>
+                <span className="absolute -top-5 text-[10px] font-medium text-foreground">
+                  {pct}%
+                </span>
                 {count > 0 && (
-                  <span className="absolute -top-5 text-[10px] font-medium text-foreground">
-                    {count}
+                  <span className="absolute -bottom-5 text-[9px] text-muted-foreground whitespace-nowrap">
+                    {count} student{count !== 1 ? 's' : ''}
                   </span>
                 )}
               </div>
@@ -245,6 +253,7 @@ function ProgressView({ classId }: { classId: number }) {
           })}
         </div>
       </div>
+      <div className="mt-6" />
       <Separator />
       <Table>
         <TableHeader>

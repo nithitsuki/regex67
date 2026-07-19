@@ -4,6 +4,7 @@ import { useStore } from '@/store'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { toast } from 'sonner'
 import LevelList from '@/components/LevelList'
 import Cheatsheet from '@/components/Cheatsheet'
 import type { Class, ClassStudent } from '@/types'
@@ -25,11 +26,22 @@ export default function StudentDashboard() {
   }, [username])
 
   const handleJoin = async (c: Class) => {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from('class_students')
       .insert({ class_id: c.id, student_username: username, current_level: 1 })
       .select()
       .single()
+
+    if (error) {
+      if (error.code === '23505') {
+        toast.error('Already enrolled in this class')
+      } else if (error.code === '23503') {
+        toast.error('This class no longer exists — ask your teacher to create a new one')
+      } else {
+        toast.error(error.message)
+      }
+      return
+    }
 
     if (data) {
       setEnrollments((prev) => [...prev, data])
