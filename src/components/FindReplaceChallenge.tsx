@@ -41,12 +41,12 @@ export default function FindReplaceChallenge({ level, username, classId, onCompl
       } else {
         regex = new RegExp(find, 'g')
       }
-      const transformed = (level.buffer || '').replace(regex, replace)
+      const transformed = result.replace(regex, replace)
       setResult(transformed)
     } catch {
       toast.error('Invalid regex pattern')
     }
-  }, [find, replace, level.buffer])
+  }, [find, replace, result])
 
   const handleCheck = useCallback(() => {
     if (result === level.expected) {
@@ -104,6 +104,7 @@ export default function FindReplaceChallenge({ level, username, classId, onCompl
         </div>
         <div className="flex items-end gap-2">
           <Button onClick={handleApply} disabled={solved}>Apply</Button>
+          <Button onClick={() => setResult(level.buffer || '')} variant="outline" disabled={solved}>Reset</Button>
           <Button onClick={handleCheck} variant="outline" disabled={solved}>Check</Button>
         </div>
       </div>
