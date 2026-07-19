@@ -224,28 +224,30 @@ function ProgressView({ classId }: { classId: number }) {
   }
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-6">
       <div>
         <h3 className="mb-2 text-sm font-medium">Level completion ({total} students)</h3>
-        <div className="flex items-end gap-[3px] h-40">
+        <div className="flex items-end gap-[3px] h-48 pt-6 pb-6">
           {Array.from({ length: 50 }, (_, i) => i + 1).map((lv) => {
             const { count, pct } = completion[lv]
             return (
               <div key={lv} className="group relative flex flex-1 flex-col items-center justify-end h-full">
                 <div
-                  className="w-full rounded-t transition-all"
+                  className="w-full rounded-t transition-all group-hover:opacity-80"
                   style={{
                     height: `${pct}%`,
                     backgroundColor: pct >= 80 ? 'hsl(142, 76%, 36%)' : pct >= 40 ? 'hsl(48, 96%, 53%)' : 'hsl(0, 84%, 60%)',
                   }}
                 />
-                <span className="mt-1 text-[10px] text-muted-foreground">{lv}</span>
-                <span className="absolute -top-5 text-[10px] font-medium text-foreground">
-                  {pct}%
-                </span>
+                <span className="mt-0.5 text-[10px] text-muted-foreground">{lv}</span>
+                {pct > 0 && (
+                  <span className="absolute -top-4 text-[10px] font-medium text-foreground">
+                    {pct}%
+                  </span>
+                )}
                 {count > 0 && (
-                  <span className="absolute -bottom-5 text-[9px] text-muted-foreground whitespace-nowrap">
-                    {count} student{count !== 1 ? 's' : ''}
+                  <span className="absolute bottom-6 text-[9px] text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity">
+                    {count} here
                   </span>
                 )}
               </div>
@@ -253,7 +255,6 @@ function ProgressView({ classId }: { classId: number }) {
           })}
         </div>
       </div>
-      <div className="mt-6" />
       <Separator />
       <Table>
         <TableHeader>

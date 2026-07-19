@@ -3,9 +3,11 @@ import { supabase } from '@/utils/supabase'
 import { testRegexLive, allPass, type MatchDetail } from '@/utils/regex'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
+import { Card, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { toast } from 'sonner'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 import type { Level, TestCase } from '@/types'
 
 interface Props {
@@ -88,7 +90,9 @@ export default function LevelChallenge({ level, username, classId, allLevels, on
       <Card>
         <CardHeader>
           <CardTitle>Description</CardTitle>
-          <CardDescription>{level.description}</CardDescription>
+          <div className="text-sm leading-relaxed [&_strong]:font-semibold [&_code]:rounded [&_code]:bg-muted [&_code]:px-1 [&_code]:py-0.5 [&_code]:font-mono [&_code]:text-xs">
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>{level.description}</ReactMarkdown>
+          </div>
         </CardHeader>
       </Card>
 
