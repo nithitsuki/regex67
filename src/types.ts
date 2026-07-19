@@ -30,4 +30,6 @@ export interface Level {
   description: string
   pattern: string
   test_cases: TestCase[]
+  buffer?: string
+  expected?: string
 }

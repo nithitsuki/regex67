@@ -66,4 +66,31 @@ export const sampleLevels: Omit<Level, 'id' | 'class_id'>[] = [
       { string: 'coolor', shouldMatch: false },
     ],
   },
+  {
+    level_number: 6,
+    description:
+      '**Find & Replace Basics** — Use find and replace to swap the words on each line. Find two words and reverse their order.',
+    pattern: '',
+    test_cases: [],
+    buffer: 'hello world\nfoo bar\none two',
+    expected: 'world hello\nbar foo\ntwo one',
+  },
+  {
+    level_number: 7,
+    description:
+      '**Strip Digits** — Remove all digits from the text using `\\d+` in the find field and an empty replacement.',
+    pattern: '',
+    test_cases: [],
+    buffer: 'abc123def456ghi789',
+    expected: 'abcdefghi',
+  },
+  {
+    level_number: 8,
+    description:
+      '**CSV to Pipes** — Replace all commas with pipe characters `|` using find and replace.',
+    pattern: '',
+    test_cases: [],
+    buffer: 'a,b,c\n1,2,3\nx,y,z',
+    expected: 'a|b|c\n1|2|3\nx|y|z',
+  },
 ]

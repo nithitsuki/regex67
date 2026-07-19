@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress, ProgressTrack, ProgressIndicator } from '@/components/ui/progress'
 import LevelChallenge from '@/components/LevelChallenge'
+import FindReplaceChallenge from '@/components/FindReplaceChallenge'
 import Cheatsheet from '@/components/Cheatsheet'
 import type { Level } from '@/types'
 
@@ -43,8 +44,9 @@ export default function LevelList({ classId, className, currentLevel, username, 
   }
 
   if (activeLevel) {
+    const Challenge = activeLevel.buffer ? FindReplaceChallenge : LevelChallenge
     return (
-      <LevelChallenge
+      <Challenge
         level={activeLevel}
         username={username}
         classId={classId}

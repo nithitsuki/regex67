@@ -24,9 +24,9 @@ function LevelEditor({ classId, onDone }: { classId: number; onDone: () => void 
   const [editing, setEditing] = useState<Partial<Level>>({})
 
   const seedLevels = async () => {
-    const existing = levels.filter((l) => l.level_number <= 5)
-    if (existing.length === 5) {
-      toast.info('Levels 1-5 already exist')
+    const existingCount = levels.filter((l) => l.level_number <= 8).length
+    if (existingCount === 8) {
+      toast.info('All 8 sample levels already exist')
       return
     }
     let count = 0
@@ -52,13 +52,15 @@ function LevelEditor({ classId, onDone }: { classId: number; onDone: () => void 
 
   const saveLevel = async () => {
     if (!editing.level_number) return
-    const payload = {
+    const payload: Record<string, unknown> = {
       class_id: classId,
       level_number: editing.level_number,
       description: editing.description || '',
       pattern: editing.pattern || '',
       test_cases: editing.test_cases || [],
     }
+    if (editing.buffer !== undefined) payload.buffer = editing.buffer
+    if (editing.expected !== undefined) payload.expected = editing.expected
     const existing = levels.find((l) => l.level_number === editing.level_number)
     if (existing) {
       await supabase.from('levels').update(payload).eq('id', existing.id)
@@ -79,7 +81,7 @@ function LevelEditor({ classId, onDone }: { classId: number; onDone: () => void 
           Seed 5 sample levels
         </Button>
         <span className="text-xs text-muted-foreground">
-          {levels.filter((l) => l.level_number <= 5).length}/5 levels created
+          {levels.filter((l) => l.level_number <= 8).length}/8 levels created
         </span>
       </div>
       <div className="flex flex-wrap gap-2">
@@ -128,6 +130,24 @@ function LevelEditor({ classId, onDone }: { classId: number; onDone: () => void 
                 onChange={(e) => setEditing((prev) => ({ ...prev, pattern: e.target.value }))}
                 placeholder="e.g. \\d+"
                 className="font-mono"
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium">Buffer (for find/replace challenges)</label>
+              <textarea
+                value={editing.buffer || ''}
+                onChange={(e) => setEditing((prev) => ({ ...prev, buffer: e.target.value }))}
+                placeholder="Initial text buffer for find/replace challenges"
+                className="min-h-[80px] w-full rounded-md border bg-muted p-3 font-mono text-sm"
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium">Expected (for find/replace challenges)</label>
+              <textarea
+                value={editing.expected || ''}
+                onChange={(e) => setEditing((prev) => ({ ...prev, expected: e.target.value }))}
+                placeholder="Expected output after find/replace"
+                className="min-h-[80px] w-full rounded-md border bg-muted p-3 font-mono text-sm"
               />
             </div>
             <div>
