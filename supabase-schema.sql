@@ -76,7 +76,7 @@ create policy "Anyone can update levels" on levels for update using (true);
 -- update profiles set is_teacher = true where username = 'your-username';
 
 -- Function to seed all 50 levels for a class. Usage: select seed_class_levels(1);
-create or replace function seed_class_levels(cid bigint) returns text as $$
+create or replace function seed_class_levels(cid bigint) returns text as $body$
 begin
   insert into levels (class_id, level_number, description, pattern, test_cases) values
     (cid, 1, E'**Anchors** — Use `^` and `$` to match the exact word "cat".', '^cat$', '[{"string":"cat","shouldMatch":true},{"string":"cats","shouldMatch":false},{"string":"catapult","shouldMatch":false},{"string":"dog","shouldMatch":false},{"string":"c at","shouldMatch":false}]'),
@@ -113,7 +113,7 @@ begin
     (cid, 26, E'**Markdown Links** — Convert `[text](url)` to HTML using `\\[([^]]+)\\]\\(([^)]+)\\)` -> `<a href="$2">$1</a>`.', '', '[]', '[Google](https://google.com)\n[GitHub](https://github.com)', '<a href="https://google.com">Google</a>\n<a href="https://github.com">GitHub</a>'),
     (cid, 27, E'**Extract Hashtags** — Extract hashtags from text using `#(\\w+)` -> `$1`.', '', '[]', 'Love #coding and #regex\nCheck #javascript', 'coding\nregex\njavascript'),
     (cid, 28, E'**CSV to HTML Table Row** — Convert CSV to `<tr>` using `([^,]+),([^,]+),([^,]+)` -> `<tr><td>$1</td><td>$2</td><td>$3</td></tr>`.', '', '[]', 'John,30,NYC\nJane,25,LA', '<tr><td>John</td><td>30</td><td>NYC</td></tr>\n<tr><td>Jane</td><td>25</td><td>LA</td></tr>'),
-    (cid, 29, E'**Currency Format** — Prepend `$` to numbers using `(\\d+)` -> `$$$1`. Use `$` before the dollar sign in the replacement.', '', '[]', 'costs 5\nprice 100', 'costs $5\nprice $100'),
+    (cid, 29, E'**Currency Format** — Prepend `$` to numbers using `(\\d+)` -> `$1`. Use `$` before the dollar sign in the replacement.', '', '[]', 'costs 5\nprice 100', 'costs $5\nprice $100'),
     (cid, 30, E'**Remove Vowels** — Remove all vowels with `/[aeiou]/gi` and empty replacement.', '', '[]', 'Hello World', 'Hll Wrld')
   on conflict (class_id, level_number) do update set description = excluded.description, pattern = excluded.pattern, test_cases = excluded.test_cases, buffer = excluded.buffer, expected = excluded.expected;
 
@@ -145,4 +145,4 @@ begin
 
   return '50 levels seeded for class ' || cid;
 end;
-$$ language plpgsql;
+$body$ language plpgsql;
