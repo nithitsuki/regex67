@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { toast } from 'sonner'
+import ThemeToggle from '@/components/ThemeToggle'
 import LevelList from '@/components/LevelList'
 import Cheatsheet from '@/components/Cheatsheet'
 import type { Class, ClassStudent } from '@/types'
@@ -69,6 +70,7 @@ export default function StudentDashboard() {
           <p className="text-sm text-muted-foreground">Select a class to start learning</p>
         </div>
         <div className="flex gap-2">
+          <ThemeToggle />
           <Button variant="outline" onClick={() => setShowCheatsheet(true)}>
             Cheatsheet
           </Button>

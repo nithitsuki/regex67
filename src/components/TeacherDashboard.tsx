@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Separator } from '@/components/ui/separator'
 import { toast } from 'sonner'
+import ThemeToggle from '@/components/ThemeToggle'
 import { sampleLevels } from '@/levels'
 import type { Class, Level, ClassStudent } from '@/types'
 
@@ -24,9 +25,9 @@ function LevelEditor({ classId, onDone }: { classId: number; onDone: () => void 
   const [editing, setEditing] = useState<Partial<Level>>({})
 
   const seedLevels = async () => {
-    const existingCount = levels.filter((l) => l.level_number <= 13).length
-    if (existingCount === 13) {
-      toast.info('All 13 sample levels already exist')
+    const existingCount = levels.filter((l) => l.level_number <= 50).length
+    if (existingCount === 50) {
+      toast.info('All 50 sample levels already exist')
       return
     }
     let count = 0
@@ -81,7 +82,7 @@ function LevelEditor({ classId, onDone }: { classId: number; onDone: () => void 
           Seed 5 sample levels
         </Button>
         <span className="text-xs text-muted-foreground">
-          {levels.filter((l) => l.level_number <= 13).length}/13 levels created
+          {levels.filter((l) => l.level_number <= 50).length}/50 levels created
         </span>
       </div>
       <div className="flex flex-wrap gap-2">
@@ -236,48 +237,70 @@ function ProgressView({ classId }: { classId: number }) {
   }
 
   const total = students.length
+  const activeLevels = [...new Set(students.map((s) => s.current_level))].sort((a, b) => a - b)
+  const avgLevel = Math.round(students.reduce((sum, s) => sum + s.current_level, 0) / total)
 
-  const completion: Record<number, { count: number; pct: number }> = {}
-  for (let i = 1; i <= 50; i++) {
-    const completed = students.filter((s) => s.current_level > i).length
-    completion[i] = { count: students.filter((s) => s.current_level === i).length, pct: Math.round((completed / total) * 100) }
+  const levelStats: Record<number, { count: number; pct: number }> = {}
+  for (const lv of activeLevels) {
+    const completed = students.filter((s) => s.current_level > lv).length
+    const stuck = students.filter((s) => s.current_level === lv).length
+    levelStats[lv] = { count: stuck, pct: Math.round((completed / total) * 100) }
   }
 
   return (
     <div className="flex flex-col gap-6">
+      <div className="grid grid-cols-3 gap-3">
+        <Card>
+          <CardContent className="p-4 text-center">
+            <div className="text-2xl font-bold">{total}</div>
+            <div className="text-xs text-muted-foreground">Students</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4 text-center">
+            <div className="text-2xl font-bold">{avgLevel}</div>
+            <div className="text-xs text-muted-foreground">Avg Level</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4 text-center">
+            <div className="text-2xl font-bold">{activeLevels.length}</div>
+            <div className="text-xs text-muted-foreground">Levels in Play</div>
+          </CardContent>
+        </Card>
+      </div>
+
       <div>
-        <h3 className="mb-2 text-sm font-medium">Level completion ({total} students)</h3>
-        <div className="overflow-x-auto">
-          <div className="flex items-end gap-1 h-48 pt-6 pb-6 min-w-[800px]">
-          {Array.from({ length: 50 }, (_, i) => i + 1).map((lv) => {
-            const { count, pct } = completion[lv]
+        <h3 className="mb-2 text-sm font-medium">Active Levels</h3>
+        <div className="flex flex-col gap-1.5">
+          {activeLevels.map((lv) => {
+            const { count, pct } = levelStats[lv]
             return (
-              <div key={lv} className="group relative flex flex-1 flex-col items-center justify-end h-full">
-                <div
-                  className="w-full rounded-t transition-all group-hover:opacity-80"
-                  style={{
-                    height: `${pct}%`,
-                    backgroundColor: pct >= 80 ? 'hsl(142, 76%, 36%)' : pct >= 40 ? 'hsl(48, 96%, 53%)' : 'hsl(0, 84%, 60%)',
-                  }}
-                />
-                <span className="mt-0.5 text-[10px] text-muted-foreground">{lv}</span>
-                {pct > 0 && (
-                  <span className="absolute -top-4 text-[10px] font-medium text-foreground">
-                    {pct}%
-                  </span>
-                )}
-                {count > 0 && (
-                  <span className="absolute bottom-6 text-[9px] text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity">
-                    {count} here
-                  </span>
-                )}
+              <div key={lv} className="flex items-center gap-3 rounded-lg border px-4 py-2">
+                <span className="w-10 text-sm font-mono font-bold">L{lv}</span>
+                <div className="flex-1">
+                  <div className="h-2 rounded-full bg-muted overflow-hidden">
+                    <div
+                      className="h-full rounded-full transition-all"
+                      style={{
+                        width: `${pct}%`,
+                        backgroundColor: pct >= 80 ? 'hsl(142, 76%, 36%)' : pct >= 40 ? 'hsl(48, 96%, 53%)' : 'hsl(0, 84%, 60%)',
+                      }}
+                    />
+                  </div>
+                </div>
+                <span className="text-sm font-medium w-12 text-right">{pct}%</span>
+                <Badge variant={count > 0 ? 'secondary' : 'outline'} className="w-20 justify-center">
+                  {count} stuck
+                </Badge>
               </div>
             )
           })}
-          </div>
         </div>
       </div>
+
       <Separator />
+
       <Table>
         <TableHeader>
           <TableRow>
@@ -347,7 +370,10 @@ export default function TeacherDashboard() {
     <div className="mx-auto flex max-w-2xl flex-col gap-6 p-4">
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-bold">Teacher Dashboard</h1>
-        <Button variant="ghost" onClick={logout}>Logout</Button>
+        <div className="flex gap-2">
+          <ThemeToggle />
+          <Button variant="ghost" onClick={logout}>Logout</Button>
+        </div>
       </div>
 
       <Card>

@@ -4,6 +4,8 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 
+import ThemeToggle from '@/components/ThemeToggle'
+
 interface Props {
   onLogin: (username: string) => void
 }
@@ -61,6 +63,9 @@ export default function LoginScreen({ onLogin }: Props) {
 
   return (
     <div className="flex min-h-screen items-center justify-center p-4">
+      <div className="absolute top-4 right-4">
+        <ThemeToggle />
+      </div>
       <Card className="w-full max-w-sm">
         <CardHeader>
           <CardTitle>Regex67</CardTitle>
