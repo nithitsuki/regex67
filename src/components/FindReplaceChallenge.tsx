@@ -9,6 +9,20 @@ import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import type { Level } from '@/types'
 
+function useDarkMode() {
+  const [dark, setDark] = useState(() =>
+    document.documentElement.classList.contains('dark')
+  )
+  useEffect(() => {
+    const observer = new MutationObserver(() => {
+      setDark(document.documentElement.classList.contains('dark'))
+    })
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] })
+    return () => observer.disconnect()
+  }, [])
+  return dark
+}
+
 interface Props {
   level: Level
   username: string
@@ -20,6 +34,7 @@ interface Props {
 export default function FindReplaceChallenge({ level, username, classId, onComplete, onBack }: Props) {
   const editorRef = useRef<Parameters<OnMount>[0] | null>(null)
   const [solved, setSolved] = useState(false)
+  const dark = useDarkMode()
   const key = `fr-${level.level_number}`
 
   useEffect(() => {
@@ -88,6 +103,7 @@ export default function FindReplaceChallenge({ level, username, classId, onCompl
           defaultLanguage="plaintext"
           defaultValue={level.buffer || ''}
           onMount={handleMount}
+          theme={dark ? 'vs-dark' : 'vs'}
           options={{
             minimap: { enabled: false },
             fontSize: 14,
