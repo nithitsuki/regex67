@@ -10,7 +10,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Separator } from '@/components/ui/separator'
 import { toast } from 'sonner'
 import ThemeToggle from '@/components/ThemeToggle'
-import { sampleLevels } from '@/levels'
 import type { Class, Level, ClassStudent } from '@/types'
 
 function LevelEditor({ classId, onDone }: { classId: number; onDone: () => void }) {
@@ -25,30 +24,18 @@ function LevelEditor({ classId, onDone }: { classId: number; onDone: () => void 
   const [editing, setEditing] = useState<Partial<Level>>({})
 
   const seedLevels = async () => {
-    const existingCount = levels.filter((l) => l.level_number <= 50).length
-    if (existingCount === 50) {
-      toast.info('All 50 sample levels already exist')
+    const { data, error } = await supabase.rpc('seed_class_levels', { cid: classId })
+    if (error) {
+      toast.error(error.message)
       return
     }
-    let count = 0
-    for (const lv of sampleLevels) {
-      if (!levels.find((l) => l.level_number === lv.level_number)) {
-        const { error } = await supabase.from('levels').insert({ class_id: classId, ...lv })
-        if (error) {
-          toast.error(`Failed to insert level ${lv.level_number}: ${error.message}`)
-          return
-        }
-        count++
-      }
-    }
-    toast.success(`${count} sample levels created`)
-    onDone()
-    const { data } = await supabase
+    toast.success(data as string)
+    const { data: refreshed } = await supabase
       .from('levels')
       .select('*')
       .eq('class_id', classId)
       .order('level_number')
-    if (data) setLevels(data)
+    if (refreshed) setLevels(refreshed)
   }
 
   const saveLevel = async () => {
