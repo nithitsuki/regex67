@@ -93,4 +93,49 @@ export const sampleLevels: Omit<Level, 'id' | 'class_id'>[] = [
     buffer: 'a,b,c\n1,2,3\nx,y,z',
     expected: 'a|b|c\n1|2|3\nx|y|z',
   },
+  {
+    level_number: 9,
+    description:
+      '**Collapse Whitespace** — Replace one or more whitespace characters with a single space using `\\s+`.',
+    pattern: '',
+    test_cases: [],
+    buffer: 'hello    world\nfoo   bar\none  two',
+    expected: 'hello world\nfoo bar\none two',
+  },
+  {
+    level_number: 10,
+    description:
+      '**Bold Words** — Wrap each word in `<b>` tags using a capturing group and `$1` in the replacement.',
+    pattern: '',
+    test_cases: [],
+    buffer: 'hello\nworld\nregex',
+    expected: '<b>hello</b>\n<b>world</b>\n<b>regex</b>',
+  },
+  {
+    level_number: 11,
+    description:
+      '**US to EU Date** — Swap month and day in dates using `(\\d{2})/(\\d{2})/(\\d{4})`. Replace with `$2/$1/$3`.',
+    pattern: '',
+    test_cases: [],
+    buffer: '03/15/2024\n12/25/2024\n01/01/2025',
+    expected: '15/03/2024\n25/12/2024\n01/01/2025',
+  },
+  {
+    level_number: 12,
+    description:
+      '**Strip HTML Tags** — Remove all HTML tags using `<[^>]+>`. Leave the replacement empty.',
+    pattern: '',
+    test_cases: [],
+    buffer: '<b>hello</b>\n<i>world</i>\n<span>regex</span>',
+    expected: 'hello\nworld\nregex',
+  },
+  {
+    level_number: 13,
+    description:
+      '**Quote Words** — Wrap each word in double quotes using `(\\w+)` and `"$1"` as the replacement.',
+    pattern: '',
+    test_cases: [],
+    buffer: 'hello world\nfoo bar',
+    expected: '"hello" "world"\n"foo" "bar"',
+  },
 ]

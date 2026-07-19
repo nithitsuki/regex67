@@ -24,9 +24,9 @@ function LevelEditor({ classId, onDone }: { classId: number; onDone: () => void 
   const [editing, setEditing] = useState<Partial<Level>>({})
 
   const seedLevels = async () => {
-    const existingCount = levels.filter((l) => l.level_number <= 8).length
-    if (existingCount === 8) {
-      toast.info('All 8 sample levels already exist')
+    const existingCount = levels.filter((l) => l.level_number <= 13).length
+    if (existingCount === 13) {
+      toast.info('All 13 sample levels already exist')
       return
     }
     let count = 0
@@ -81,7 +81,7 @@ function LevelEditor({ classId, onDone }: { classId: number; onDone: () => void 
           Seed 5 sample levels
         </Button>
         <span className="text-xs text-muted-foreground">
-          {levels.filter((l) => l.level_number <= 8).length}/8 levels created
+          {levels.filter((l) => l.level_number <= 13).length}/13 levels created
         </span>
       </div>
       <div className="flex flex-wrap gap-2">
