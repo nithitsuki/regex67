@@ -1,32 +1,117 @@
-# React + TypeScript + Vite
+# Regex67
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+A regex learning platform for classrooms. Teachers create classes with regex challenges; students solve them in linear order.
 
-Currently, two official plugins are available:
+Built with Vite + React + TypeScript + Tailwind CSS + shadcn/ui + Supabase.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Features
 
-## React Compiler
+- **Username-only auth** — no passwords or emails required
+- **Teacher dashboard** — create classes, author regex levels, track student progress
+- **Student dashboard** — join classes, solve levels in linear order
+- **Two challenge types:**
+  - **Match challenges** — write a regex pattern to match (or not match) given strings with live highlighting
+  - **Find & Replace challenges** — use find and replace in a Monaco Editor buffer to transform text to a required format
+- **Regex cheatsheet** — quick reference for common regex patterns
+- **Progress tracking** — per-class, per-student level completion with a histogram
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Getting Started
 
-## Expanding the Oxlint configuration
+### Prerequisites
 
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
+- [Bun](https://bun.sh/) >= 1.2
+- A [Supabase](https://supabase.com/) project
 
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+### Setup
+
+```bash
+git clone https://github.com/nithitsuki/regex67.git
+cd regex67
+bun install
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+### Environment
+
+Copy `.env` to the project root (already provided — contains your Supabase project keys):
+
+```
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_PUBLISHABLE_KEY=sb_publishable_your_key
+```
+
+### Database
+
+1. Go to your Supabase project dashboard → **SQL Editor**
+2. Paste and run `supabase-schema.sql`
+3. Enable **Anonymous sign-ins** in **Auth > Settings** ("Allow anonymous sign-ins")
+
+### Run
+
+```bash
+bun run dev
+```
+
+### Making Yourself a Teacher
+
+Log in with your username, then run this in the Supabase SQL Editor:
+
+```sql
+update profiles set is_teacher = true where username = 'your-username';
+```
+
+Refresh the page — you'll see the Teacher Dashboard.
+
+## Usage
+
+### Teacher
+
+1. Log in with any username
+2. Click **Create Class**, give it a name
+3. Click **Manage** on the class, go to the **Levels** tab
+4. Click **Seed 13 sample levels** to auto-create the challenges
+5. Go back and **Enable** the class so students can see it
+6. The **Progress** tab shows a completion histogram per level
+
+### Student
+
+1. Log in with any username
+2. Available enabled classes are listed — click **Join Class**
+3. Solve levels in order (must pass level 1 to unlock level 2, etc.)
+4. Click **Cheatsheet** anytime for a regex reference
+
+## Tech Stack
+
+| Layer | Choice |
+|-------|--------|
+| Framework | Vite + React 19 |
+| Language | TypeScript 6 |
+| Styling | Tailwind CSS v4 |
+| UI Library | shadcn/ui (Base UI) |
+| Editor | Monaco Editor |
+| Backend | Supabase (Postgres + Auth) |
+| Regex Engine | XRegExp |
+| State | Zustand |
+| Markdown | react-markdown + remark-gfm |
+| Package Manager | Bun |
+
+## Project Structure
+
+```
+src/
+  components/
+    ui/           shadcn components
+    LoginScreen.tsx
+    StudentDashboard.tsx
+    TeacherDashboard.tsx
+    LevelList.tsx
+    LevelChallenge.tsx     match-type challenge
+    FindReplaceChallenge.tsx  find+replace challenge
+    Cheatsheet.tsx
+  utils/
+    supabase.ts   Supabase client
+    regex.ts      XRegExp helpers
+  store.ts        Zustand state
+  levels.ts       Sample level definitions
+  types.ts        TypeScript interfaces
+  App.tsx         Root component
+```
