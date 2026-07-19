@@ -1,17 +1,19 @@
-import { useState, useMemo, useCallback } from 'react'
+import { useState, useMemo, useCallback, useEffect } from 'react'
 import { supabase } from '@/utils/supabase'
 import { testRegexLive, allPass, type MatchDetail } from '@/utils/regex'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { toast } from 'sonner'
 import type { Level, TestCase } from '@/types'
 
 interface Props {
   level: Level
   profileId: string
   classId: number
-  onComplete: () => void
+  allLevels: Level[]
+  onComplete: (nextLevelNumber: number) => void
   onBack: () => void
 }
 
@@ -38,29 +40,40 @@ function HighlightedText({ text, ranges, highlightClass }: { text: string; range
   )
 }
 
-export default function LevelChallenge({ level, profileId, classId, onComplete, onBack }: Props) {
+export default function LevelChallenge({ level, profileId, classId, allLevels, onComplete, onBack }: Props) {
   const [pattern, setPattern] = useState('')
   const [submitted, setSubmitted] = useState<MatchDetail[] | null>(null)
   const [solved, setSolved] = useState(false)
+
+  useEffect(() => {
+    setPattern('')
+    setSubmitted(null)
+    setSolved(false)
+  }, [level.level_number])
 
   const live = useMemo(() => {
     if (!pattern) return null
     return testRegexLive(pattern, level.test_cases as TestCase[])
   }, [pattern, level.test_cases])
 
-  const handleCheck = useCallback(() => {
+  const handleCheck = useCallback(async () => {
     const r = testRegexLive(pattern, level.test_cases as TestCase[])
     setSubmitted(r)
     if (allPass(r)) {
       setSolved(true)
-      supabase
+      const { error } = await supabase
         .from('class_students')
         .update({ current_level: level.level_number + 1 })
         .eq('profile_id', profileId)
         .eq('class_id', classId)
-        .then(() => onComplete())
+      if (!error) {
+        toast.success(`Level ${level.level_number} solved!`)
+      }
     }
-  }, [pattern, level, profileId, classId, onComplete])
+  }, [pattern, level, profileId, classId])
+
+  const nextLevel = allLevels.find((l) => l.level_number === level.level_number + 1)
+  const hasNext = level.level_number < 50
 
   return (
     <div className="mx-auto flex max-w-2xl flex-col gap-6 p-4">
@@ -139,6 +152,20 @@ export default function LevelChallenge({ level, profileId, classId, onComplete, 
           )
         })}
       </div>
+
+      {solved && (
+        <div className="flex justify-center gap-3">
+          {nextLevel ? (
+            <Button onClick={() => onComplete(level.level_number + 1)}>
+              Next Level
+            </Button>
+          ) : hasNext ? (
+            <Button onClick={() => onComplete(level.level_number + 1)}>
+              Next Level (no content yet)
+            </Button>
+          ) : null}
+        </div>
+      )}
     </div>
   )
 }

@@ -32,8 +32,14 @@ export default function LevelList({ classId, className, currentLevel, profileId,
       })
   }, [classId])
 
-  const handleComplete = () => {
-    setActiveLvl((l) => Math.min(l + 1, 50))
+  const handleComplete = (nextLevelNumber: number) => {
+    setActiveLvl(nextLevelNumber)
+    const next = levels.find((l) => l.level_number === nextLevelNumber)
+    if (next) {
+      setActiveLevel(next)
+    } else {
+      setActiveLevel(null)
+    }
   }
 
   if (activeLevel) {
@@ -42,6 +48,7 @@ export default function LevelList({ classId, className, currentLevel, profileId,
         level={activeLevel}
         profileId={profileId}
         classId={classId}
+        allLevels={levels}
         onComplete={handleComplete}
         onBack={() => setActiveLevel(null)}
       />
@@ -66,7 +73,7 @@ export default function LevelList({ classId, className, currentLevel, profileId,
         </CardHeader>
         <CardContent>
           <div className="flex items-center gap-4">
-            <Progress value={(activeLvl / 50) * 100} className="flex-1">
+            <Progress value={((activeLvl - 1) / 50) * 100} className="flex-1">
               <ProgressTrack>
                 <ProgressIndicator />
               </ProgressTrack>

@@ -4,12 +4,12 @@ export const sampleLevels: Omit<Level, 'id' | 'class_id'>[] = [
   {
     level_number: 1,
     description:
-      '**Literal Characters** — Match the exact sequence "cat" anywhere in the string.',
-    pattern: 'cat',
+      '**Anchors** — Use `^` and `$` to match the exact word "cat".',
+    pattern: '^cat$',
     test_cases: [
       { string: 'cat', shouldMatch: true },
-      { string: 'cats', shouldMatch: true },
-      { string: 'catapult', shouldMatch: true },
+      { string: 'cats', shouldMatch: false },
+      { string: 'catapult', shouldMatch: false },
       { string: 'dog', shouldMatch: false },
       { string: 'c at', shouldMatch: false },
     ],

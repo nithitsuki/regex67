@@ -2,9 +2,9 @@
 -- Or just use the "Seed 5 sample levels" button in the teacher dashboard.
 
 insert into levels (class_id, level_number, description, pattern, test_cases) values
-(1, 1, E'**Literal Characters** — Match the exact sequence "cat" anywhere in the string.',
-  'cat',
-  '[{"string": "cat", "shouldMatch": true}, {"string": "cats", "shouldMatch": true}, {"string": "catapult", "shouldMatch": true}, {"string": "dog", "shouldMatch": false}, {"string": "c at", "shouldMatch": false}]'),
+(1, 1, E'**Anchors** — Use `^` and `$` to match the exact word "cat".',
+  '^cat$',
+  '[{"string": "cat", "shouldMatch": true}, {"string": "cats", "shouldMatch": false}, {"string": "catapult", "shouldMatch": false}, {"string": "dog", "shouldMatch": false}, {"string": "c at", "shouldMatch": false}]'),
 
 (1, 2, E'**The Dot Wildcard** — Use `.` to match any single character. Match "cat", "cot", and "cut".',
   'c.t',

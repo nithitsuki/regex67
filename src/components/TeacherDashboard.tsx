@@ -210,25 +210,46 @@ function ProgressView({ classId }: { classId: number }) {
     return <p className="text-sm text-muted-foreground">No students have joined yet.</p>
   }
 
+  const levelCounts: Record<number, number> = {}
+  for (let i = 1; i <= 50; i++) levelCounts[i] = 0
+  for (const s of students) levelCounts[s.current_level] = (levelCounts[s.current_level] || 0) + 1
+
   return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Student</TableHead>
-          <TableHead>Current Level</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {students.map((s) => (
-          <TableRow key={s.id}>
-            <TableCell>{s.profile?.username || 'Unknown'}</TableCell>
-            <TableCell>
-              <Badge>Level {s.current_level}</Badge>
-            </TableCell>
+    <div className="flex flex-col gap-4">
+      <div>
+        <h3 className="mb-2 text-sm font-medium">Students per level</h3>
+        <div className="flex flex-wrap gap-1">
+          {Array.from({ length: 50 }, (_, i) => i + 1).map((lv) => (
+            <div
+              key={lv}
+              className="flex h-12 w-12 flex-col items-center justify-center rounded-lg border text-xs"
+            >
+              <span className="font-mono font-bold">{lv}</span>
+              <span className="text-muted-foreground">{levelCounts[lv] || 0}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+      <Separator />
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Student</TableHead>
+            <TableHead>Current Level</TableHead>
           </TableRow>
-        ))}
-      </TableBody>
-    </Table>
+        </TableHeader>
+        <TableBody>
+          {students.map((s) => (
+            <TableRow key={s.id}>
+              <TableCell>{s.profile?.username || 'Unknown'}</TableCell>
+              <TableCell>
+                <Badge>Level {s.current_level}</Badge>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </div>
   )
 }
 
