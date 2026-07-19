@@ -1,8 +1,7 @@
-import { useState, useCallback, useEffect } from 'react'
-import Editor from '@monaco-editor/react'
+import { useState, useRef, useCallback, useEffect } from 'react'
+import Editor, { type OnMount } from '@monaco-editor/react'
 import { supabase } from '@/utils/supabase'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import { Card, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { toast } from 'sonner'
@@ -19,37 +18,28 @@ interface Props {
 }
 
 export default function FindReplaceChallenge({ level, username, classId, onComplete, onBack }: Props) {
-  const [find, setFind] = useState('')
-  const [replace, setReplace] = useState('')
-  const [result, setResult] = useState(level.buffer || '')
+  const editorRef = useRef<Parameters<OnMount>[0] | null>(null)
   const [solved, setSolved] = useState(false)
+  const key = `fr-${level.level_number}`
 
   useEffect(() => {
-    setFind('')
-    setReplace('')
-    setResult(level.buffer || '')
     setSolved(false)
   }, [level.level_number])
 
-  const handleApply = useCallback(() => {
-    if (!find) return
-    try {
-      const flags = find.startsWith('/') ? find.match(/^\/(.*)\/([gimsuy]*)$/) : null
-      let regex: RegExp
-      if (flags) {
-        regex = new RegExp(flags[1], flags[2])
-      } else {
-        regex = new RegExp(find, 'g')
-      }
-      const transformed = result.replace(regex, replace)
-      setResult(transformed)
-    } catch {
-      toast.error('Invalid regex pattern')
-    }
-  }, [find, replace, result])
+  const handleMount: OnMount = useCallback((editor) => {
+    editorRef.current = editor
+    editor.focus()
+    editor.getAction('actions.find')?.run()
+  }, [])
+
+  const handleReset = useCallback(() => {
+    editorRef.current?.setValue(level.buffer || '')
+    editorRef.current?.focus()
+  }, [level.buffer])
 
   const handleCheck = useCallback(() => {
-    if (result === level.expected) {
+    const content = editorRef.current?.getValue() || ''
+    if (content === level.expected) {
       setSolved(true)
       supabase
         .from('class_students')
@@ -62,7 +52,7 @@ export default function FindReplaceChallenge({ level, username, classId, onCompl
     } else {
       toast.error('Output does not match expected result')
     }
-  }, [result, level, username, classId])
+  }, [level, username, classId])
 
   return (
     <div className="mx-auto flex max-w-4xl flex-col gap-4 p-4">
@@ -71,7 +61,10 @@ export default function FindReplaceChallenge({ level, username, classId, onCompl
           <Button variant="outline" onClick={onBack}>Back</Button>
           <h1 className="text-xl font-bold">Level {level.level_number}</h1>
         </div>
-        {solved && <Badge variant="default">Solved!</Badge>}
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-muted-foreground">Use Cmd+F for find & replace</span>
+          {solved && <Badge variant="default">Solved!</Badge>}
+        </div>
       </div>
 
       <Card>
@@ -83,55 +76,24 @@ export default function FindReplaceChallenge({ level, username, classId, onCompl
         </CardHeader>
       </Card>
 
-      <div className="flex gap-3">
-        <div className="flex-1">
-          <label className="text-xs font-medium text-muted-foreground">Find</label>
-          <Input
-            value={find}
-            onChange={(e) => setFind(e.target.value)}
-            placeholder="Regex pattern"
-            className="font-mono"
-          />
-        </div>
-        <div className="flex-1">
-          <label className="text-xs font-medium text-muted-foreground">Replace with</label>
-          <Input
-            value={replace}
-            onChange={(e) => setReplace(e.target.value)}
-            placeholder="Replacement string"
-            className="font-mono"
-          />
-        </div>
-        <div className="flex items-end gap-2">
-          <Button onClick={handleApply} disabled={solved}>Apply</Button>
-          <Button onClick={() => setResult(level.buffer || '')} variant="outline" disabled={solved}>Reset</Button>
-          <Button onClick={handleCheck} variant="outline" disabled={solved}>Check</Button>
-        </div>
+      <div className="flex gap-2">
+        <Button onClick={handleReset} variant="outline" disabled={solved}>Reset</Button>
+        <Button onClick={handleCheck} variant="outline" disabled={solved}>Check</Button>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <p className="mb-1 text-xs font-medium text-muted-foreground">Input buffer</p>
-          <div className="rounded-lg border overflow-hidden">
-            <Editor
-              height="200px"
-              defaultLanguage="plaintext"
-              value={level.buffer || ''}
-              options={{ readOnly: true, minimap: { enabled: false }, fontSize: 14 }}
-            />
-          </div>
-        </div>
-        <div>
-          <p className="mb-1 text-xs font-medium text-muted-foreground">Result</p>
-          <div className="rounded-lg border overflow-hidden">
-            <Editor
-              height="200px"
-              defaultLanguage="plaintext"
-              value={result}
-              options={{ readOnly: true, minimap: { enabled: false }, fontSize: 14, theme: 'vs-dark' }}
-            />
-          </div>
-        </div>
+      <div className="rounded-lg border overflow-hidden">
+        <Editor
+          key={key}
+          height="300px"
+          defaultLanguage="plaintext"
+          defaultValue={level.buffer || ''}
+          onMount={handleMount}
+          options={{
+            minimap: { enabled: false },
+            fontSize: 14,
+            readOnly: solved,
+          }}
+        />
       </div>
 
       {level.expected && !solved && (
