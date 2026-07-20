@@ -6,6 +6,7 @@ import { Progress, ProgressTrack, ProgressIndicator } from '@/components/ui/prog
 import LevelChallenge from '@/components/LevelChallenge'
 import FindReplaceChallenge from '@/components/FindReplaceChallenge'
 import Cheatsheet from '@/components/Cheatsheet'
+import { TOTAL_LEVELS } from '@/levels'
 import type { Level } from '@/types'
 
 interface Props {
@@ -75,20 +76,20 @@ export default function LevelList({ classId, className, currentLevel, username, 
         </CardHeader>
         <CardContent>
           <div className="flex items-center gap-4">
-            <Progress value={((activeLvl - 1) / 50) * 100} className="flex-1">
+            <Progress value={(Math.min(activeLvl - 1, TOTAL_LEVELS) / TOTAL_LEVELS) * 100} className="flex-1">
               <ProgressTrack>
                 <ProgressIndicator />
               </ProgressTrack>
             </Progress>
             <span className="text-sm text-muted-foreground">
-              Level {Math.min(activeLvl, 50)} / 50
+              {activeLvl > TOTAL_LEVELS ? 'Complete' : `Level ${activeLvl} / ${TOTAL_LEVELS}`}
             </span>
           </div>
         </CardContent>
       </Card>
 
       <div className="grid grid-cols-5 gap-2 sm:grid-cols-10">
-        {Array.from({ length: 50 }, (_, i) => i + 1).map((num) => {
+        {Array.from({ length: TOTAL_LEVELS }, (_, i) => i + 1).map((num) => {
           const level = levels.find((l) => l.level_number === num)
           const unlocked = num <= activeLvl
           const current = num === activeLvl

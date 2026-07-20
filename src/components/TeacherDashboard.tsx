@@ -11,6 +11,7 @@ import { Separator } from '@/components/ui/separator'
 import { toast } from 'sonner'
 import ThemeToggle from '@/components/ThemeToggle'
 import type { Class, Level, ClassStudent } from '@/types'
+import { TOTAL_LEVELS } from '@/levels'
 
 function LevelEditor({ classId, onDone }: { classId: number; onDone: () => void }) {
   const [levels, setLevels] = useState<Level[]>([])
@@ -66,14 +67,14 @@ function LevelEditor({ classId, onDone }: { classId: number; onDone: () => void 
     <div className="flex flex-col gap-4">
       <div className="flex items-center gap-2">
         <Button variant="outline" size="sm" onClick={seedLevels}>
-          Seed 5 sample levels
+          Seed {TOTAL_LEVELS} essential levels
         </Button>
         <span className="text-xs text-muted-foreground">
-          {levels.filter((l) => l.level_number <= 50).length}/50 levels created
+          {levels.filter((l) => l.level_number <= TOTAL_LEVELS).length}/{TOTAL_LEVELS} levels created
         </span>
       </div>
       <div className="flex flex-wrap gap-2">
-        {Array.from({ length: 50 }, (_, i) => i + 1).map((n) => {
+        {Array.from({ length: TOTAL_LEVELS }, (_, i) => i + 1).map((n) => {
           const exists = levels.find((l) => l.level_number === n)
           return (
             <Button

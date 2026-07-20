@@ -8,6 +8,7 @@ import { toast } from 'sonner'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import type { Level } from '@/types'
+import { TOTAL_LEVELS } from '@/levels'
 
 function useDarkMode() {
   const [dark, setDark] = useState(() =>
@@ -119,7 +120,7 @@ export default function FindReplaceChallenge({ level, username, classId, onCompl
         </details>
       )}
 
-      {solved && (
+      {solved && level.level_number < TOTAL_LEVELS && (
         <div className="flex justify-center">
           <Button onClick={() => onComplete(level.level_number + 1)}>
             Next Level

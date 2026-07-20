@@ -75,7 +75,6 @@ export default function LevelChallenge({ level, username, classId, allLevels, on
   }, [pattern, level, username, classId])
 
   const nextLevel = allLevels.find((l) => l.level_number === level.level_number + 1)
-  const hasNext = level.level_number < 50
 
   return (
     <div className="mx-auto flex max-w-2xl flex-col gap-6 p-4">
@@ -162,10 +161,6 @@ export default function LevelChallenge({ level, username, classId, allLevels, on
           {nextLevel ? (
             <Button onClick={() => onComplete(level.level_number + 1)}>
               Next Level
-            </Button>
-          ) : hasNext ? (
-            <Button onClick={() => onComplete(level.level_number + 1)}>
-              Next Level (no content yet)
             </Button>
           ) : null}
         </div>
